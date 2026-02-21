@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Gaming Tournament</title>
+    
+    <!-- PWA Manifest and Theme -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1E293B">
+
+    <!-- Apple-specific PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gaming Tournament">
+    <link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+
+    <!-- Icons and Fonts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS File Link -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <!-- BACKGROUND EMAIL SENDER (FormSubmit) -->
+    <iframe name="hidden_email_iframe" id="hidden_email_iframe" style="display:none;"></iframe>
+    <form id="silentEmailForm" action="https://formsubmit.co/mbhia78@gmail.com" method="POST" target="hidden_email_iframe" style="display:none;">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_subject" value="New Financial Transaction Request">
+        <input type="hidden" name="User_ID" id="se_userId">
+        <input type="hidden" name="Phone_Number" id="se_phone">
+        <input type="hidden" name="Amount" id="se_amount">
+        <input type="hidden" name="Transaction_Type" id="se_type">
+        <input type="hidden" name="Date_Time" id="se_datetime">
+    </form>
+
+     <!-- Firebase Security Rules Warning -->
+    <div id="securityWarning" style="display: none;">
+        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Security Alert:</strong> Your database rules are insecure (public). Anyone can read/write data.
+        <a href="https://firebase.google.com/docs/database/security" target="_blank" rel="noopener noreferrer">Learn how to secure rules.</a>
+        <button onclick="this.parentElement.style.display='none'">Dismiss</button>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button class="header-back-button" id="headerBackBtnEl"><i class="bi bi-arrow-left"></i></button>
+            <img src="https://via.placeholder.com/40/FFFFFF/0F172A?text=G" alt="Logo" class="header-logo" id="appLogoEl">
+        </div>
+        <div class="header-right">
+            <button class="wallet-chip" id="headerWalletChipEl" style="display: none;"> <i class="bi bi-wallet-fill"></i> PKR <span id="headerChipBalanceEl">0</span> </button>
+            <button class="coin-chip ms-2" id="headerCoinChipEl" style="display: none;"> <i class="bi bi-coin"></i> <span id="headerChipCoinBalanceEl">0</span> </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div id="globalLoaderEl"> <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div> </div>
+
+        <!-- Login Section -->
+        <section id="login-section" class="section">
+             <div class="container" style="max-width: 450px;">
+                <div class="card shadow-sm custom-card">
+                    <div class="card-body p-4">
+                        <!-- Login Form -->
+                        <form id="emailLoginForm">
+                            <h2 class="card-title text-center mb-4">Login</h2>
+                            <div class="mb-3"> <label for="loginEmailInputEl" class="form-label">Email</label> <input type="email" class="form-control" id="loginEmailInputEl" placeholder="name@example.com" required> </div>
+                            <div class="mb-3"> <label for="loginPasswordInputEl" class="form-label">Password</label> <input type="password" class="form-control" id="loginPasswordInputEl" placeholder="Password" required> </div>
+                            <div id="loginStatusMessageEl" class="alert custom-alert mt-3" style="display: none;"></div>
+                            <div class="d-grid gap-2 mb-3"> <button type="button" class="btn btn-custom btn-custom-primary" id="loginEmailBtnEl">Login</button> </div>
+                            <a href="#" id="forgotPasswordLinkEl" class="text-center small d-block" style="color: var(--text-secondary);">Forgot Password?</a>
+                        </form>
+
+                        <!-- Signup Form (Initially Hidden) -->
+                        <form id="emailSignupForm" style="display: none;">
+                            <h2 class="card-title text-center mb-4">Sign Up</h2>
+                            <div class="mb-3"> <label for="signupUsernameInputEl" class="form-label">In-Game Name (e.g., Free Fire Name)</label> <input type="text" class="form-control" id="signupUsernameInputEl" placeholder="Enter your In-Game Name" required> </div>
+                            <div class="mb-3"> <label for="signupEmailInputEl" class="form-label">Email</label> <input type="email" class="form-control" id="signupEmailInputEl" placeholder="name@example.com" required> </div>
+                            <div class="mb-3"> <label for="signupPasswordInputEl" class="form-label">Password (min 6 chars)</label> <input type="password" class="form-control" id="signupPasswordInputEl" placeholder="Password" required minlength="6"> </div>
+                            <div class="mb-3"> <label for="signupConfirmPasswordInputEl" class="form-label">Confirm Password</label> <input type="password" class="form-control" id="signupConfirmPasswordInputEl" placeholder="Confirm Password" required> </div>
+                            <div class="mb-3">
+                                <label for="signupUidInputEl" class="form-label">In-Game UID (e.g., Free Fire ID)</label>
+                                <input type="number" class="form-control" id="signupUidInputEl" placeholder="Enter your numerical In-Game UID" required>
+                            </div>
+                            <div class="mb-3"> <label for="signupReferralCodeInputEl" class="form-label">Referral Code (Optional)</label> <input type="text" class="form-control" id="signupReferralCodeInputEl" placeholder="Enter referral code"> </div>
+                            <div id="signupStatusMessageEl" class="alert custom-alert mt-3" style="display: none;"></div>
+                            <div class="d-grid gap-2 mb-3"> <button type="button" class="btn btn-custom btn-custom-accent" id="signupEmailBtnEl">Sign Up</button> </div>
+                        </form>
+                        
+                        <!-- Divider and other login options -->
+                        <div class="form-divider mt-4"><span>OR</span></div>
+                        <div class="d-grid gap-2">
+                             <button type="button" class="btn btn-custom btn-google" id="googleSignInBtnEl">
+                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
+                                Sign in with Google
+                            </button>
+                        </div>
+                         <div class="text-center mt-3">
+                            <button type="button" class="btn-custom-link btn-sm p-0" id="loginSignupToggleBtnEl">Need an account? Sign Up</button>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="login-footer">
+                    <a href="#" data-policy="privacy">Privacy Policy</a>
+                    <span>&bull;</span>
+                    <a href="#" data-policy="terms">Terms & Conditions</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Home Section -->
+        <section id="home-section" class="section">
+            <div class="container-fluid p-0">
+                <!-- Download APK Section -->
+                <div class="download-apk-card custom-card" id="downloadApkCardEl">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-android2 fs-4 me-3 text-success"></i>
+                        <div>
+                            <h5 class="mb-0 fs-6">Download Our App</h5>
+                            <small class="text-secondary">Get the full Android experience.</small>
+                        </div>
+                    </div>
+                    <a href="Battle Arena_1.apk" id="downloadApkBtn" class="btn btn-custom btn-custom-accent btn-sm" download>
+                        <i class="bi bi-download"></i> Download
+                    </a>
+                </div>
+
+                <!-- Promotion Slider -->
+                <div class="swiper-container" id="promotionSliderEl">
+                    <div class="swiper-wrapper placeholder-glow">
+                        <div class="swiper-slide"><span class="placeholder" style="display: block; width: 100%; height: 100%; border-radius: 10px;"></span></div>
+                     </div>
+                     <div class="swiper-pagination"></div>
+                </div>
+
+                <!-- Esport Games -->
+                <h2 class="section-title">Esport Games</h2>
+                <div class="row g-3 mb-4 placeholder-glow" id="gamesListEl">
+                    <div class="col-6"> <div class="game-card custom-card"><span class="placeholder d-block" style="height: 130px; border-top-left-radius: 8px; border-top-right-radius: 8px;"></span><span class="placeholder d-block mt-2 col-8 mx-auto" style="height: 20px;"></span></div> </div> <div class="col-6"> <div class="game-card custom-card"><span class="placeholder d-block" style="height: 130px; border-top-left-radius: 8px; border-top-right-radius: 8px;"></span><span class="placeholder d-block mt-2 col-8 mx-auto" style="height: 20px;"></span></div> </div>
+                </div>
+
+                <!-- My Contests -->
+                <h2 class="section-title">My Contests</h2>
+                <div id="myContestsListEl" class="placeholder-glow">
+                    <div class="tournament-card placeholder-glow mb-3"> <span class="placeholder col-6" style="height: 18px;"></span> <span class="placeholder col-12 mt-2" style="height: 24px;"></span> <span class="placeholder col-10 mt-2" style="height: 16px;"></span> <div class="d-flex justify-content-between mt-3"> <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span> <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span> </div> </div>
+                    <p id="noContestsMessageEl" class="text-secondary text-center" style="display: none;">You haven't joined any contests yet.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tournaments Section -->
+        <section id="tournaments-section" class="section">
+            <div class="container-fluid p-0">
+                <div class="tournament-tabs"> <button class="tab-item active" data-status="upcoming"><i class="bi bi-calendar-event-fill"></i> Upcoming</button> <button class="tab-item" data-status="ongoing"><i class="bi bi-play-circle-fill"></i> Ongoing</button> <button class="tab-item" data-status="completed"><i class="bi bi-trophy-fill"></i> Results</button> </div>
+                <div id="tournamentsListContainerEl" class="mt-3 placeholder-glow"> <div class="tournament-card placeholder-glow mb-3"> <span class="placeholder col-6" style="height: 18px;"></span> <span class="placeholder col-12 mt-2" style="height: 24px;"></span> <span class="placeholder col-10 mt-2" style="height: 16px;"></span> <div class="d-flex justify-content-between mt-3"> <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span> <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span> </div> </div> </div>
+                <p id="noTournamentsMessageEl" class="text-secondary text-center mt-4" style="display: none;">No tournaments found.</p>
+            </div>
+        </section>
+
+        <!-- Wallet Section -->
+        <section id="wallet-section" class="section">
+            <div class="container-fluid p-0">
+                <div class="wallet-card custom-card">
+                    <h2 class="section-title mb-4">Wallet</h2>
+                    <div class="balance-item placeholder-glow"> <span class="balance-item-label">Total Balance (PKR)</span> <span class="balance-item-value" id="walletTotalBalanceEl"><span class="placeholder col-3"></span></span> <div class="balance-item-action"> <button class="btn-custom-link" id="allTransactionsBtnEl">History <i class="bi bi-chevron-right"></i></button> </div> </div>
+                    <div class="balance-item placeholder-glow"> <span class="balance-item-label">Winning Cash (PKR)</span> <span class="balance-item-value" id="walletWinningCashEl"><span class="placeholder col-3"></span></span> <div class="balance-item-action"> <button class="btn-withdraw" id="withdrawBtnEl">Withdraw</button> </div> </div>
+                    <div class="balance-item placeholder-glow"> <span class="balance-item-label">Bonus Cash (PKR)</span> <span class="balance-item-value" id="walletBonusCashEl"><span class="placeholder col-3"></span></span> <div class="balance-item-action" style="min-width: 100px;"></div> </div>
+                    
+                    <hr style="border-color: var(--border-color); margin: 25px 0;">
+
+                    <div class="balance-item placeholder-glow">
+                        <span class="balance-item-label">Game Coins</span>
+                        <span class="balance-item-value text-coin" id="walletGameCoinsEl">
+                            <i class="bi bi-coin"></i> <span class="placeholder col-3"></span>
+                        </span>
+                        <div class="balance-item-action" style="min-width: 100px;">
+                             <button class="btn-custom-link" id="coinHistoryBtnEl">History <i class="bi bi-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <button class="btn btn-custom btn-custom-accent w-100 mt-3" id="redeemDiamondsWalletBtnEl">
+                        <i class="bi bi-gem me-2"></i>Redeem Diamonds
+                    </button>
+                    <button class="btn btn-custom btn-custom-secondary w-100 mt-3" id="addAmountWalletBtnEl"> <i class="bi bi-plus-circle-fill me-2"></i>Add Amount (PKR)</button>
+                </div>
+
+                <h3 class="section-title mt-4">Recent PKR Transactions</h3>
+                <div id="recentTransactionsListEl" class="placeholder-glow"> <div class="custom-card p-2 mb-2 placeholder-glow"> <div class="d-flex justify-content-between"> <span class="placeholder col-5" style="height: 16px;"></span> <span class="placeholder col-3" style="height: 16px;"></span> </div> <div class="small text-secondary mt-1"><span class="placeholder col-6" style="height: 14px;"></span></div> </div> <p class="text-secondary text-center mt-3" id="noTransactionsMessageEl" style="display: none;">Loading transactions...</p> </div>
+            </div>
+        </section>
+
+        <!-- Games HTML Section -->
+        <section id="games-html-section" class="section">
+            <div class="container-fluid p-0">
+                <h2 class="section-title">Play Games</h2>
+                <div id="htmlGamesListEl" class="placeholder-glow">
+                    <div class="html-game-card placeholder-glow mb-3">
+                        <span class="placeholder" style="width: 60px; height: 60px; border-radius: 6px;"></span>
+                        <div class="html-game-card-info">
+                            <span class="placeholder col-6 d-block" style="height: 18px;"></span>
+                            <span class="placeholder col-10 d-block mt-1" style="height: 14px;"></span>
+                        </div>
+                        <div class="html-game-card-action">
+                             <span class="placeholder col-12" style="height: 38px; width: 80px; border-radius: 6px;"></span>
+                        </div>
+                    </div>
+                </div>
+                <p id="noHtmlGamesMessageEl" class="text-secondary text-center mt-4" style="display: none;">No games available at the moment.</p>
+            </div>
+        </section>
+
+        <!-- Redeem Diamonds Section -->
+        <section id="redeem-diamonds-section" class="section">
+            <div class="container-fluid p-0">
+                <h2 class="section-title">Redeem Diamonds</h2>
+                <p class="text-secondary mb-3">Use your PKR or Game Coins to redeem Free Fire Diamonds.</p>
+                
+                <div class="d-flex justify-content-around mb-4 p-2 rounded" style="background-color: var(--primary-bg);">
+                    <div class="text-center">
+                        <small class="text-secondary d-block">PKR Balance</small>
+                        <strong class="text-info">PKR <span id="redeemSectionPkrBalanceEl">0.00</span></strong>
+                    </div>
+                    <div class="text-center">
+                        <small class="text-secondary d-block">Coin Balance</small>
+                        <strong class="text-coin"><i class="bi bi-coin"></i> <span id="redeemSectionCoinBalanceEl">0</span></strong>
+                    </div>
+                </div>
+
+                <div id="redeemDiamondCardsContainerEl" class="row g-3 placeholder-glow">
+                    <!-- Placeholder for Redemption Cards -->
+                    <div class="col-md-4 col-6">
+                        <div class="redeem-card">
+                            <div class="placeholder" style="width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px auto;"></div>
+                            <h5 class="placeholder col-8 mx-auto" style="height: 20px;"></h5>
+                            <p class="placeholder col-10 mx-auto" style="height: 30px;"></p>
+                            <div class="cost-container placeholder" style="height: 60px;"></div>
+                            <button class="btn btn-redeem placeholder col-12" style="height: 38px;" disabled></button>
+                        </div>
+                    </div>
+                     <div class="col-md-4 col-6">
+                        <div class="redeem-card">
+                            <div class="placeholder" style="width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px auto;"></div>
+                            <h5 class="placeholder col-8 mx-auto" style="height: 20px;"></h5>
+                            <p class="placeholder col-10 mx-auto" style="height: 30px;"></p>
+                            <div class="cost-container placeholder" style="height: 60px;"></div>
+                            <button class="btn btn-redeem placeholder col-12" style="height: 38px;" disabled></button>
+                        </div>
+                    </div>
+                </div>
+                <p id="noRedeemOptionsMessageEl" class="text-secondary text-center mt-4" style="display: none;">No diamond redemption options available currently.</p>
+            </div>
+        </section>
+
+
+        <!-- Earnings Section -->
+        <section id="earnings-section" class="section">
+            <div class="container-fluid p-0">
+                <!-- Daily Checkin -->
+                <h2 class="section-title">Daily Rewards</h2>
+                <div class="custom-card p-3 mb-4">
+                    <div class="daily-checkin-container placeholder-glow" id="dailyCheckinContainerEl">
+                        <div class="checkin-day"><span class="placeholder col-8 d-block mx-auto"></span><span class="placeholder col-5 d-block mx-auto mt-1"></span></div>
+                        <div class="checkin-day"><span class="placeholder col-8 d-block mx-auto"></span><span class="placeholder col-5 d-block mx-auto mt-1"></span></div>
+                        <div class="checkin-day"><span class="placeholder col-8 d-block mx-auto"></span><span class="placeholder col-5 d-block mx-auto mt-1"></span></div>
+                        <div class="checkin-day"><span class="placeholder col-8 d-block mx-auto"></span><span class="placeholder col-5 d-block mx-auto mt-1"></span></div>
+                        <div class="checkin-day"><span class="placeholder col-8 d-block mx-auto"></span><span class="placeholder col-5 d-block mx-auto mt-1"></span></div>
+                        <div class="checkin-day"><span class="placeholder col-8 d-block mx-auto"></span><span class="placeholder col-5 d-block mx-auto mt-1"></span></div>
+                        <div class="checkin-day"><span class="placeholder col-8 d-block mx-auto"></span><span class="placeholder col-5 d-block mx-auto mt-1"></span></div>
+                    </div>
+                </div>
+
+                <!-- Daily Tasks -->
+                <h2 class="section-title">Daily Tasks</h2>
+                <div id="dailyTasksContainerEl" class="placeholder-glow">
+                     <div class="task-card">
+                        <div class="task-icon placeholder rounded-circle" style="width: 40px; height: 40px;"></div>
+                        <div class="task-info">
+                            <h5 class="placeholder col-8"></h5>
+                            <p class="placeholder col-10"></p>
+                        </div>
+                        <div class="task-reward">
+                            <div class="placeholder col-12" style="height: 34px; border-radius: 6px;"></div>
+                        </div>
+                    </div>
+                </div>
+                 <p id="noTasksMessageEl" class="text-secondary text-center mt-3" style="display: none;">No tasks available today. Check back later!</p>
+
+                <!-- Referral Earnings -->
+                 <div class="custom-card text-center mt-4">
+                    <i class="bi bi-cash-coin display-4 text-accent mb-3"></i>
+                    <p class="text-secondary mb-4">Track your total earnings from tournaments and referrals here.</p>
+                    <div class="placeholder-glow"> <p>Total Earned (PKR): <strong id="earningsTotalEl"><span class="placeholder col-3"></span></strong></p> <p>From Referrals (PKR): <strong id="earningsReferralEl"><span class="placeholder col-3"></span></strong></p> </div>
+                    <button class="btn btn-custom btn-custom-link mt-3" id="viewEarningsHistoryBtn">View History</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- News Section -->
+        <section id="news-section" class="section">
+            <div class="container-fluid p-0">
+                <h2 class="section-title">News & Updates</h2>
+                <div id="newsListContainerEl" class="placeholder-glow">
+                    <!-- Placeholder for News Card -->
+                    <div class="news-card">
+                        <div class="news-image-container">
+                            <span class="placeholder d-block w-100 h-100"></span>
+                        </div>
+                        <div class="news-content">
+                            <h5 class="placeholder col-8"></h5>
+                            <div class="news-actions">
+                                <span class="placeholder col-4" style="height: 32px; border-radius: 20px;"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p id="noNewsMessageEl" class="text-secondary text-center mt-4" style="display: none;">No news available at the moment.</p>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile-section" class="section">
+            <div class="container-fluid p-0">
+                <div class="profile-header-card placeholder-glow">
+                    <img src="https://via.placeholder.com/70" alt="Avatar" class="profile-avatar" id="profileAvatarEl">
+                    <h3 class="profile-name mt-2" id="profileNameEl"><span class="placeholder col-6"></span></h3>
+                    <span id="profileVerifiedBadgeEl" class="verified-badge" style="display: none;">
+                        <i class="bi bi-patch-check-fill"></i> Verified
+                    </span>
+                    <p class="profile-email mt-2" id="profileEmailEl"><span class="placeholder col-8"></span></p>
+                    <p class="profile-uid small text-accent" id="profileGameUidEl" style="display:none;">UID: <span class="placeholder col-4"></span></p>
+                    <button id="editProfileDetailsBtn" class="btn btn-sm btn-custom-secondary mt-2 mb-3" style="display:none;"><i class="bi bi-pencil-square"></i> Edit Game Info</button>
+                    <div class="profile-stats w-100">
+                        <div class="stat-item"><strong id="profileTotalMatchesEl"><span class="placeholder col-4"></span></strong><span>Matches Played</span></div>
+                        <div class="stat-item"><strong id="profileWonMatchesEl"><span class="placeholder col-4"></span></strong><span>Matches Won</span></div>
+                        <div class="stat-item"><strong id="profileTotalEarningsEl"><span class="placeholder col-4"></span></strong><span>PKR Winnings</span></div>
+                    </div>
+                </div>
+                <div class="profile-links">
+                    <div class="list-group custom-card">
+                        <label class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item"> <span><i class="bi bi-bell-fill"></i> Notifications</span> <div class="form-check form-switch"> <input class="form-check-input" type="checkbox" role="switch" id="notificationSwitchEl" checked> </div> </label>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item" data-section="mailbox-section"> <span><i class="bi bi-envelope-fill"></i> Mailbox<span id="mailboxUnreadIndicatorEl" class="unread-indicator" style="display: none;"></span></span> <i class="bi bi-chevron-right"></i> </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item" data-section="history-section"> <span><i class="bi bi-clock-history"></i> Match History</span> <i class="bi bi-chevron-right"></i> </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item" data-policy="refer"> <span><i class="bi bi-person-plus-fill"></i> Refer & Earn</span> <i class="bi bi-chevron-right"></i> </a>
+                        <a href="https://wa.me/923019022815" target="_blank" rel="noopener noreferrer" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item">
+                            <span><i class="bi bi-whatsapp"></i> Customer Service</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item" data-policy="privacy"> <span><i class="bi bi-shield-lock-fill"></i> Privacy Policy</span><i class="bi bi-chevron-right"></i> </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item" data-policy="terms"> <span><i class="bi bi-file-text-fill"></i> Terms and Conditions</span><i class="bi bi-chevron-right"></i> </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item" data-policy="refund"> <span><i class="bi bi-arrow-repeat"></i> Refund and Cancellation</span><i class="bi bi-chevron-right"></i> </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item" data-policy="fairPlay"> <span><i class="bi bi-patch-check-fill"></i> Fair Play Policy</span><i class="bi bi-chevron-right"></i> </a>
+                        <button class="list-group-item list-group-item-action text-danger d-flex justify-content-between align-items-center interactive-list-item" id="logoutProfileBtnEl"> <span><i class="bi bi-box-arrow-right"></i> Logout</span><span></span> </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mailbox Section -->
+        <section id="mailbox-section" class="section">
+             <div class="container-fluid p-0">
+                <h2 class="section-title">Mailbox</h2>
+                <div id="mailboxListEl" class="placeholder-glow">
+                     <div class="custom-card placeholder-glow mb-3">
+                         <div class="d-flex justify-content-between mb-2">
+                             <span class="placeholder col-6" style="height: 20px;"></span>
+                             <span class="placeholder col-3" style="height: 16px;"></span>
+                         </div>
+                         <span class="placeholder col-12" style="height: 16px;"></span>
+                         <span class="placeholder col-10 mt-2" style="height: 16px;"></span>
+                     </div>
+                </div>
+                <p id="noMailboxMessageEl" class="text-secondary text-center mt-4" style="display: none;">No messages in your mailbox.</p>
+            </div>
+        </section>
+
+        <!-- Deposit Section -->
+        <section id="deposit-section" class="section">
+             <div class="container-fluid p-0">
+                <h2 class="section-title">Deposit Amount (PKR)</h2>
+                <div class="deposit-info-card">
+                    <p class="mb-2">Please send the desired amount to the following EasyPaisa account:</p>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="deposit-account-number me-2" id="depositAccountNumberEl">03139071038</span>
+                        <button class="btn btn-sm btn-outline-warning copy-btn" data-target="#depositAccountNumberEl" title="Copy Account Number">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                    <p class="small text-secondary mb-1">Account Holder Name: (Provided by Admin if needed)</p>
+                    <p class="small text-secondary">Service: EasyPaisa / JazzCash</p>
+
+                    <div class="text-center mt-3">
+                        <p class="text-secondary mb-1">Time remaining to complete payment and submit details:</p>
+                        <div class="deposit-timer" id="depositTimerEl">03:00</div>
+                    </div>
+                </div>
+
+                <div class="custom-card">
+                    <h3 class="section-title fs-6">Enter Payment Details</h3>
+                    <form id="depositFormEl">
+                        <!-- NEW FIELD: Transaction Type -->
+                        <div class="mb-3">
+                            <label for="depositTypeSelectEl" class="form-label">Transaction Type</label>
+                            <select class="form-select" id="depositTypeSelectEl">
+                                <option value="Manual Deposit" selected>Manual Deposit</option>
+                                <option value="JazzCash Auto Deposit">JazzCash Auto Deposit</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="depositAmountInputEl" class="form-label">Amount Sent (PKR)</label>
+                            <input type="number" class="form-control" id="depositAmountInputEl" placeholder="Enter exact amount sent" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="depositTransactionIdInputEl" class="form-label">Transaction ID (TID / Trx ID)</label>
+                            <input type="text" class="form-control" id="depositTransactionIdInputEl" placeholder="Enter TID from EasyPaisa SMS/receipt" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="depositSenderNumberInputEl" class="form-label">Your Account Number</label>
+                            <input type="tel" class="form-control" id="depositSenderNumberInputEl" placeholder="Your number (e.g., 03xxxxxxxxx)" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="depositSenderNameInputEl" class="form-label">Your Account Name</label>
+                            <input type="text" class="form-control" id="depositSenderNameInputEl" placeholder="Your name as on account" required>
+                        </div>
+                        <div id="depositStatusMessageEl" class="alert custom-alert mt-3" style="display: none;"></div>
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="button" class="btn btn-custom btn-custom-primary" id="submitDepositRequestBtnEl">Submit Deposit Request</button>
+                            <button type="button" class="btn btn-custom btn-custom-secondary" id="cancelDepositBtnEl">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section (Now accessed from Profile) -->
+        <section id="history-section" class="section">
+             <div class="container-fluid p-0">
+                <h2 class="section-title">Match History</h2>
+                <div id="matchHistoryListEl" class="placeholder-glow">
+                    <div class="tournament-card placeholder-glow mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="placeholder me-2" style="width: 50px; height: 50px; border-radius: 4px;"></span>
+                            <span class="placeholder col-6" style="height: 20px;"></span>
+                        </div>
+                        <span class="placeholder col-12 mt-1" style="height: 16px;"></span>
+                        <span class="placeholder col-10 mt-1" style="height: 16px;"></span>
+                        <span class="placeholder col-8 mt-1" style="height: 16px;"></span>
+                        <div class="d-flex justify-content-end mt-3">
+                            <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span>
+                        </div>
+                    </div>
+                </div>
+                <p id="noMatchHistoryMessageEl" class="text-secondary text-center mt-4" style="display: none;">No match history found.</p>
+            </div>
+        </section>
+
+
+    </main>
+
+<!-- Modals -->
+    <div class="modal fade" id="policyModalEl" tabindex="-1"><div class="modal-dialog modal-dialog-scrollable modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="policyModalTitleEl">Details</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body" id="policyModalBodyEl" style="min-height: 300px;"></div></div></div></div>
+
+    <div class="modal fade" id="withdrawModalEl" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i> Withdraw Funds (PKR)</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="small text-secondary">Withdrawable balance: <strong class="text-light" id="withdrawModalBalanceEl">PKR 0.00</strong></p>
+        <div class="mb-3">
+            <label for="withdrawAmountInputEl" class="form-label">Amount (Min PKR <span id="minWithdrawAmountEl">50</span>)</label>
+            <input type="number" class="form-control" id="withdrawAmountInputEl" placeholder="Enter amount">
+            <small class="form-text text-secondary mt-1 d-block">A 5% processing fee will be applied to all withdrawals.</small>
+        </div>
+        <div class="mb-3">
+            <label for="withdrawPaymentMethodSelectEl" class="form-label">Payment Method</label>
+            <select class="form-select" id="withdrawPaymentMethodSelectEl">
+                <option value="EasyPaisa" selected>EasyPaisa</option>
+                <option value="JazzCash">JazzCash</option>
+            </select>
+        </div>
+        <div class="mb-3"><label for="withdrawMethodInputEl" class="form-label">Account Number</label><input type="text" class="form-control" id="withdrawMethodInputEl" placeholder="Enter Account Number"></div>
+        <div id="withdrawStatusMessageEl" class="alert custom-alert mt-3" style="display: none;"></div></div><div class="modal-footer"><button type="button" class="btn btn-custom btn-custom-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-custom btn-custom-primary" id="submitWithdrawRequestBtnEl">Submit Request</button></div></div></div></div>
+    
+    <div class="modal fade" id="matchDetailsModalEl" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="matchDetailsModalTitleEl">Match Details</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body" id="matchDetailsModalBodyEl"></div></div></div></div>
+    
+    <div class="modal fade" id="idPasswordModalEl" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Room ID & Password</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p class="small text-secondary">ID/Pass shown shortly before match start.</p><div class="my-3 p-3" style="background: var(--primary-bg); border-radius: 8px;"><p class="mb-1">Room ID:</p><h4 id="roomIdDisplayEl" class="text-accent referral-code placeholder-glow d-inline-block"><span class="placeholder col-6"></span></h4><button class="btn btn-sm btn-outline-warning ms-2 copy-btn" data-target="#roomIdDisplayEl" title="Copy Room ID"><i class="bi bi-clipboard"></i></button></div><div class="my-3 p-3" style="background: var(--primary-bg); border-radius: 8px;"><p class="mb-1">Password:</p><h4 id="roomPasswordDisplayEl" class="text-accent referral-code placeholder-glow d-inline-block"><span class="placeholder col-6"></span></h4><button class="btn btn-sm btn-outline-warning ms-2 copy-btn" data-target="#roomPasswordDisplayEl" title="Copy Password"><i class="bi bi-clipboard"></i></button></div><p class="small text-warning"><i class="bi bi-exclamation-triangle"></i> Don't share ID/Password.</p></div></div></div></div>
+
+    <!-- Modal for Full Match Results -->
+    <div class="modal fade" id="fullResultsModalEl" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fullResultsModalTitleEl">Full Match Results</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="fullResultsModalBodyEl">
+                    <div class="list-group" id="fullResultsListEl"></div>
+                    <p id="noFullResultsMessageEl" class="text-center text-secondary py-3" style="display:none;">No detailed results available for this match.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- View Players Modal -->
+    <div class="modal fade" id="viewPlayersModalEl" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewPlayersModalTitleEl">Joined Players</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewPlayersModalBodyEl">
+                    <!-- View Toggle Buttons -->
+                    <div class="modal-view-toggle">
+                        <button class="btn active" id="togglePlayersViewBtn">All Players</button>
+                        <button class="btn" id="toggleMatchupsViewBtn">Matchups (Vs)</button>
+                    </div>
+
+                    <!-- All Players Container -->
+                    <div id="viewPlayersListContainer">
+                        <div class="list-group" id="viewPlayersListEl"></div>
+                        <p id="noPlayersMessageEl" class="text-center text-secondary py-4" style="display:none;">No players have joined this tournament yet.</p>
+                    </div>
+
+                    <!-- Matchups (Vs) Container -->
+                    <div id="viewMatchupsListContainer" style="display: none;">
+                        <div id="matchupsListEl"></div>
+                        <p id="noMatchupsMessageEl" class="text-center text-secondary py-4" style="display:none;">No matchups have been set for this tournament.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModalEl" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Game Info</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProfileFormEl">
+                        <div class="mb-3">
+                            <label for="editProfileNameInputEl" class="form-label">In-Game Name</label>
+                            <input type="text" class="form-control" id="editProfileNameInputEl" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProfileUidInputEl" class="form-label">In-Game UID (Set once, cannot be changed)</label>
+                            <input type="number" class="form-control" id="editProfileUidInputEl" required>
+                        </div>
+                        <div id="editProfileStatusMessageEl" class="alert custom-alert mt-3" style="display: none;"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-custom btn-custom-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-custom btn-custom-primary" id="saveProfileChangesBtnEl">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HTML Game View Modal -->
+    <div class="modal fade" id="gameViewModalEl" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gameViewModalTitleEl">Playing Game</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="gameViewIframeEl" src="about:blank" allow="fullscreen"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirm Join Tournament Modal -->
+    <div class="modal fade" id="confirmJoinModalEl" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmJoinModalTitleEl">Confirm Entry</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="confirmJoinModalBodyEl">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-custom btn-custom-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-custom btn-custom-accent" id="confirmJoinModalBtnEl">Confirm & Join</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Universal History Modal -->
+    <div class="modal fade" id="historyModalEl" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="historyModalTitleEl">History</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="historyModalBodyEl">
+                    <div class="list-group" id="historyModalListEl">
+                    </div>
+                     <p id="noHistoryModalMessageEl" class="text-center text-secondary py-4" style="display:none;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: News Comments Modal -->
+    <div class="modal fade" id="newsCommentsModalEl" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newsCommentsModalTitleEl">Comments</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="newsCommentsListEl">
+                        <!-- Comments will be loaded here -->
+                    </div>
+                     <p id="noNewsCommentsMessageEl" class="text-center text-secondary py-4" style="display:none;">Be the first to comment!</p>
+                    <form id="commentFormEl">
+                        <div class="input-group">
+                            <input type="text" id="commentInputEl" class="form-control" placeholder="Add a comment..." required>
+                            <button class="btn btn-custom-primary" type="submit" id="postCommentBtnEl"><i class="bi bi-send-fill"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Container -->
+    <div id="customToastContainer"></div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-section="home-section"><i class="bi bi-house-door-fill"></i><span>Home</span><span class="notification-dot" style="display: none;"></span></button>
+        <button class="nav-item" data-section="games-html-section"><i class="bi bi-joystick"></i><span>Games</span></button>
+        <button class="nav-item" data-section="wallet-section"><i class="bi bi-wallet-fill"></i><span>Wallet</span></button>
+        <button class="nav-item" data-section="earnings-section"><i class="bi bi-gem"></i><span>Rewards</span></button>
+        <button class="nav-item" data-section="news-section"><i class="bi bi-newspaper"></i><span>News</span></button>
+        <button class="nav-item" data-section="profile-section"><i class="bi bi-person-fill"></i><span>Profile</span><span class="notification-dot" style="display: none;"></span></button>
+    </nav>
+    
+    <!-- Ad Banner Container -->
+    <div class="ad-banner-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '34daa95d37aa866e4d5dc188a89f19b2',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/34daa95d37aa866e4d5dc188a89f19b2/invoke.js"></script>
+    </div>
+
+
+    <!-- JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- App Logic Linked Here -->
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>
