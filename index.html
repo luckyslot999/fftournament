@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Gaming Tournament</title>
+    
+    <!-- PWA Manifest and Theme -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1E293B">
+
+    <!-- Apple-specific PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gaming Tournament">
+    <link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+
+    <!-- Icons and Fonts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS File Link -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <!-- BACKGROUND EMAIL SENDER (FormSubmit) -->
+    <iframe name="hidden_email_iframe" id="hidden_email_iframe" style="display:none;"></iframe>
+    <form id="silentEmailForm" action="https://formsubmit.co/mbhia78@gmail.com" method="POST" target="hidden_email_iframe" style="display:none;">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_subject" value="New Financial Transaction Request">
+        <input type="hidden" name="User_ID" id="se_userId">
+        <input type="hidden" name="Phone_Number" id="se_phone">
+        <input type="hidden" name="Amount" id="se_amount">
+        <input type="hidden" name="Transaction_Type" id="se_type">
+        <input type="hidden" name="Date_Time" id="se_datetime">
+    </form>
+
+     <!-- Firebase Security Rules Warning -->
+    <div id="securityWarning" style="display: none;">
+        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Security Alert:</strong> Your database rules are insecure (public). Anyone can read/write data.
+        <a href="https://firebase.google.com/docs/database/security" target="_blank" rel="noopener noreferrer">Learn how to secure rules.</a>
+        <button onclick="this.parentElement.style.display='none'">Dismiss</button>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button class="header-back-button" id="headerBackBtnEl"><i class="bi bi-arrow-left"></i></button>
+            <img src="https://via.placeholder.com/40/FFFFFF/0F172A?text=G" alt="Logo" class="header-logo" id="appLogoEl">
+        </div>
+        <div class="header-right">
+            <button class="wallet-chip" id="headerWalletChipEl" style="display: none;"> <i class="bi bi-wallet-fill"></i> PKR <span id="headerChipBalanceEl">0</span> </button>
+            <button class="coin-chip ms-2" id="headerCoinChipEl" style="display: none;"> <i class="bi bi-coin"></i> <span id="headerChipCoinBalanceEl">0</span> </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div id="globalLoaderEl"> <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div> </div>
+
+        <!-- Login Section -->
+        <section id="login-section" class="section">
+             <div class="container" style="max-width: 450px;">
+                <div class="card shadow-sm custom-card">
+                    <div class="card-body p-4">
+                        <!-- Login Form -->
+                        <form id="emailLoginForm">
+                            <h2 class="card-title text-center mb-4">Login</h2>
+                            <div class="mb-3"> <label for="loginEmailInputEl" class="form-label">Email</label> <input type="email" class="form-control" id="loginEmailInputEl" placeholder="name@example.com" required> </div>
+                            <div class="mb-3"> <label for="loginPasswordInputEl" class="form-label">Password</label> <input type="password" class="form-control" id="loginPasswordInputEl" placeholder="Password" required> </div>
+                            <div id="loginStatusMessageEl" class="alert custom-alert mt-3" style="display: none;"></div>
+                            <div class="d-grid gap-2 mb-3"> <button type="button" class="btn btn-custom btn-custom-primary" id="loginEmailBtnEl">Login</button> </div>
+                            <a href="#" id="forgotPasswordLinkEl" class="text-center small d-block" style="color: var(--text-secondary);">Forgot Password?</a>
+                        </form>
+
+                        <!-- Signup Form (Initially Hidden) -->
+                        <form id="emailSignupForm" style="display: none;">
+                            <h2 class="card-title text-center mb-4">Sign Up</h2>
+                            <div class="mb-3"> <label for="signupUsernameInputEl" class="form-label">In-Game Name (e.g., Free Fire Name)</label> <input type="text" class="form-control" id="signupUsernameInputEl" placeholder="Enter your In-Game Name" required> </div>
+                            <div class="mb-3"> <label for="signupEmailInputEl" class="form-label">Email</label> <input type="email" class="form-control" id="signupEmailInputEl" placeholder="name@example.com" required> </div>
+                            <div class="mb-3"> <label for="signupPasswordInputEl" class="form-label">Password (min 6 chars)</label> <input type="password" class="form-control" id="signupPasswordInputEl" placeholder="Password" required minlength="6"> </div>
+                            <div class="mb-3"> <label for="signupConfirmPasswordInputEl" class="form-label">Confirm Password</label> <input type="password" class="form-control" id="signupConfirmPasswordInputEl" placeholder="Confirm Password" required> </div>
+                            <div class="mb-3">
+                                <label for="signupUidInputEl" class="form-label">In-Game UID (e.g., Free Fire ID)</label>
+                                <input type="number" class="form-control" id="signupUidInputEl" placeholder="Enter your numerical In-Game UID" required>
+                            </div>
+                            <div class="mb-3"> <label for="signupReferralCodeInputEl" class="form-label">Referral Code (Optional)</label> <input type="text" class="form-control" id="signupReferralCodeInputEl" placeholder="Enter referral code"> </div>
+                            <div id="signupStatusMessageEl" class="alert custom-alert mt-3" style="display: none;"></div>
+                            <div class="d-grid gap-2 mb-3"> <button type="button" class="btn btn-custom btn-custom-accent" id="signupEmailBtnEl">Sign Up</button> </div>
+                        </form>
+                        
+                        <!-- Divider and other login options -->
+                        <div class="form-divider mt-4"><span>OR</span></div>
+                        <div class="d-grid gap-2">
+                             <button type="button" class="btn btn-custom btn-google" id="googleSignInBtnEl">
+                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
+                                Sign in with Google
+                            </button>
+                        </div>
+                         <div class="text-center mt-3">
+                            <button type="button" class="btn-custom-link btn-sm p-0" id="loginSignupToggleBtnEl">Need an account? Sign Up</button>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="login-footer">
+                    <a href="#" data-policy="privacy">Privacy Policy</a>
+                    <span>&bull;</span>
+                    <a href="#" data-policy="terms">Terms & Conditions</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Home Section -->
+        <section id="home-section" class="section">
+            <div class="container-fluid p-0">
+                <!-- Download APK Section -->
+                <div class="download-apk-card custom-card" id="downloadApkCardEl">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-android2 fs-4 me-3 text-success"></i>
+                        <div>
+                            <h5 class="mb-0 fs-6">Download Our App</h5>
+                            <small class="text-secondary">Get the full Android experience.</small>
+                        </div>
+                    </div>
+                    <a href="Battle Arena_1.apk" id="downloadApkBtn" class="btn btn-custom btn-custom-accent btn-sm" download>
+                        <i class="bi bi-download"></i> Download
+                    </a>
+                </div>
+
+                <!-- Promotion Slider -->
+                <div class="swiper-container" id="promotionSliderEl">
+                    <div class="swiper-wrapper placeholder-glow">
+                        <div class="swiper-slide"><span class="placeholder" style="display: block; width: 100%; height: 100%; border-radius: 10px;"></span></div>
+                     </div>
+                     <div class="swiper-pagination"></div>
+                </div>
+
+                <!-- Esport Games -->
+                <h2 class="section-title">Esport Games</h2>
+                <div class="row g-3 mb-4 placeholder-glow" id="gamesListEl">
+                    <div class="col-6"> <div class="game-card custom-card"><span class="placeholder d-block" style="height: 130px; border-top-left-radius: 8px; border-top-right-radius: 8px;"></span><span class="placeholder d-block mt-2 col-8 mx-auto" style="height: 20px;"></span></div> </div> <div class="col-6"> <div class="game-card custom-card"><span class="placeholder d-block" style="height: 130px; border-top-left-radius: 8px; border-top-right-radius: 8px;"></span><span class="placeholder d-block mt-2 col-8 mx-auto" style="height: 20px;"></span></div> </div>
+                </div>
+
+                <!-- My Contests -->
+                <h2 class="section-title">My Contests</h2>
+                <div id="myContestsListEl" class="placeholder-glow">
+                    <div class="tournament-card placeholder-glow mb-3"> <span class="placeholder col-6" style="height: 18px;"></span> <span class="placeholder col-12 mt-2" style="height: 24px;"></span> <span class="placeholder col-10 mt-2" style="height: 16px;"></span> <div class="d-flex justify-content-between mt-3"> <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span> <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span> </div> </div>
+                    <p id="noContestsMessageEl" class="text-secondary text-center" style="display: none;">You haven't joined any contests yet.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tournaments Section -->
+        <section id="tournaments-section" class="section">
+            <div class="container-fluid p-0">
+                <div class="tournament-tabs"> <button class="tab-item active" data-status="upcoming"><i class="bi bi-calendar-event-fill"></i> Upcoming</button> <button class="tab-item" data-status="ongoing"><i class="bi bi-play-circle-fill"></i> Ongoing</button> <button class="tab-item" data-status="completed"><i class="bi bi-trophy-fill"></i> Results</button> </div>
+                <div id="tournamentsListContainerEl" class="mt-3 placeholder-glow"> <div class="tournament-card placeholder-glow mb-3"> <span class="placeholder col-6" style="height: 18px;"></span> <span class="placeholder col-12 mt-2" style="height: 24px;"></span> <span class="placeholder col-10 mt-2" style="height: 16px;"></span> <div class="d-flex justify-content-between mt-3"> <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span> <span class="placeholder col-4" style="height: 30px; border-radius: 6px;"></span> </div> </div> </div>
+                <p id="noTournamentsMessageEl" class="text-secondary text-center mt-4" style="display: none;">No tournaments found.</p>
+            </div>
+        </section>
+
+        <!-- Wallet Section -->
+        <section id="wallet-section" class="section">
+            <div class="container-fluid p-0">
+                <div class="wallet-card custom-card">
+                    <h2 class="section-title mb-4">Wallet</h2>
+                    <div class="balance-item placeholder-glow"> <span class="balance-item-label">Total Balance (PKR)</span> <span class="balance-item-value" id="walletTotalBalanceEl"><span class="placeholder col-3"></span></span> <div class="balance-item-action"> <button class="btn-custom-link" id="allTransactionsBtnEl">History <i class="bi bi-chevron-right"></i></button> </div> </div>
+                    <div class="balance-item placeholder-glow"> <span class="balance-item-label">Winning Cash (PKR)</span> <span class="balance-item-value" id="walletWinningCashEl"><span class="placeholder col-3"></span></span> <div class="balance-item-action"> <button class="btn-withdraw" id="withdrawBtnEl">Withdraw</button> </div> </div>
+                    <div class="balance-item placeholder-glow"> <span class="balance-item-label">Bonus Cash (PKR)</span> <span class="balance-item-value" id="walletBonusCashEl"><span class="placeholder col-3"></span></span> <div class="balance-item-action" style="min-width: 100px;"></div> </div>
+                    
+                    <hr style="border-color: var(--border-color); margin: 25px 0;">
+
+                    <div class="balance-item placeholder-glow">
+                        <span class="balance-item-label">Game Coins</span>
+                        <span class="balance-item-value text-coin" id="walletGameCoinsEl">
+                            <i class="bi bi-coin"></i> <span class="placeholder col-3"></span>
+                        </span>
+                        <div class="balance-item-action" style="min-width: 100px;">
+                             <button class="btn-custom-link" id="coinHistoryBtnEl">History <i class="bi bi-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <button class="btn btn-custom btn-custom-accent w-100 mt-3" id="redeemDiamondsWalletBtnEl">
+                        <i class="bi bi-gem me-2"></i>Redeem Diamonds
+                    </button>
+                    <button class="btn btn-custom btn-custom-secondary w-100 mt-3" id="addAmountWalletBtnEl"> <i class="bi bi-plus-circle-fill me-2"></i>Add Amount (PKR)</button>
+                </div>
+
+                <h3 class="section-title mt-4">Recent PKR Transactions</h3>
+                <div id="recentTransactionsListEl" class="placeholder-glow"> <div class="custom-card p-2 mb-2 placeholder-glow"> <div class="d-flex justify-content-between"> <span class="placeholder col-5" style="height: 16px;"></span> <span class="placeholder col-3" style="height: 16px;"></span> </div> <div class="small text-secondary mt-1"><span class="placeholder col-6" style="height: 14px;"></span></div> </div> <p class="text-secondary text-center mt-3" id="noTransactionsMessageEl" style="display: none;">Loading transactions...</p> </div>
+            </div>
+        </section>
+
+        <!-- Games HTML Section -->
+        <section id="games-html-section" class="section">
+            <div class="container-fluid p-0">
+                <h2 class="section-title">Play Games</h2>
+                <div id="htmlGamesListEl" class="placeholder-glow">
+                    <div class="html-game-card placeholder-glow mb-3">
+                        <span class="placeholder" style="width: 60px; height: 60px; border-radius: 6px;"></span>
+                        <div class="html-game-card-info">
+                            <span class="placeholder col-6 d-block" style="height: 18px;"></span>
+                            <span class="placeholder col-10 d-block mt-1" style="height: 14px;"></span>
+                        </div>
+                        <div class="html-game-card-action">
+                             <span class="placeholder col-12" style="height: 38px; width: 80px; border-radius: 6px;"></span>
+                        </div>
+                    </div>
+                </div>
+                <p id="noHtmlGamesMessageEl" class="text-secondary text-center mt-4" style="display: none;">No games available at the moment.</p>
+            </div>
+        </section>
+
+        <!-- Redeem Diamonds Section -->
+        <section id="redeem-diamonds-section" class="section">
+            <div class="container-fluid p-0">
+                <h2 class="section-title">Redeem Diamonds</h2>
+                <p class="text-secondary mb-3">Use your PKR or Game Coins to redeem Free Fire Diamonds.</p>
+                
+                <div class="d-flex justify-content-around mb-4 p-2 rounded" style="background-color: var(--primary-bg);">
+                    <div class="text-center">
+                        <small class="text-secondary d-block">PKR Balance</small>
+                        <strong class="text-info">PKR <span id="redeemSectionPkrBalanceEl">0.00</span></strong>
+                    </div>
+                    <div class="text-center">
+                        <small class="text-secondary d-block">Coin Balance</small>
+                        <strong class="text-coin"><i class="bi bi-coin"></i> <span id="redeemSectionCoinBalanceEl">0</span></strong>
+                    </div>
+                </div>
+
+                <div id="redeemDiamondCardsContainerEl" class="row g-3 placeholder-glow">
+                    <!-- Placeholder for Redemption Cards -->
+                    <div class="col-md-4 col-6">
+                        <div class="redeem-card">
+                            <div class="placeholder" style="width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px auto;"></div>
+                            <h5 class="placeholder col-8 mx-auto" style="height: 20px;"></h5>
+                            <p class="placeholder col-10 mx-auto" style="height: 30px;"></p>
+                            <div class="cost-container placeholder" style="height: 60px;"></div>
+                            <button class="btn btn-redeem placeholder col-12" style="height: 38px;" disabled></button>
+                        </div>
+                    </div>
+                     <div class="col-md-4 col-6">
+                        <div class="redeem-card">
+                            <div class="placeholder" style="width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px auto;"></div>
+                            <h5 class="placeholder col-8 mx-auto" style="height: 20px;"></h5>
+                            <p class="placeholder col-10 mx-auto" style="height: 30px;"></p>
+                            <div class="cost-container placeholder" style="height: 60px;"></div>
+                            <button class="btn btn-redeem placeholder col-12" style="height: 38px;" disabled></button>
+                        </div>
+                    </div>
+                </div>
+                <p id="noRedeemOptionsMessageEl" class="text-secondary text-center mt-4" style="display: none;">No diamond redemption options available currently.</p>
+            </div>
+        </section>
+
+
+        <!-- Earnings Section -->
+        <section id="earnings-section" class="section">
+            <div class="container-fluid p-0">
+                <!-- Daily Checkin -->
+                <h2 class="section-title">Daily Rewards</h2>
+                <div class="custom-card p-3 mb-4">
+                    <div class="daily-checkin-container placeholder-glow" id="dailyChec
